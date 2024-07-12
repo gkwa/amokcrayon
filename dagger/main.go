@@ -39,3 +39,19 @@ func (m *Amokcrayon) GrepDir(ctx context.Context, directoryArg *dagger.Directory
 		WithExec([]string{"grep", "-R", pattern, "."}).
 		Stdout(ctx)
 }
+
+// InstallGPSTools installs GPS tools and returns version information
+func (m *Amokcrayon) InstallGPSTools(ctx context.Context) (string, error) {
+	container := dag.Container().
+		From("ubuntu:22.04").
+		WithExec([]string{"apt-get", "update"}).
+		WithExec([]string{"apt-get", "install", "-y", "libimage-exiftool-perl", "imagemagick", "jhead", "exiv2", "gdal-bin"})
+
+	return container.WithExec([]string{"/bin/sh", "-c", `
+		exiftool -ver &&
+		identify -version | head -n 1 &&
+		jhead -V &&
+		exiv2 -V &&
+		gdalinfo --version
+	`}).Stdout(ctx)
+}
