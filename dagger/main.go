@@ -37,27 +37,27 @@ func (m *Amokcrayon) InstallGPSTools(ctx context.Context, imageUrl string) (*dag
 	setupContainer := m.SetupImageContainer(ctx, imageUrl)
 	scriptContent := `#!/bin/bash
 extract_coords() {
-    local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
-    local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
-    local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
-    local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
-    if [ -n "$lat" ] && [ -n "$lon" ]; then
-        [ "$lat_ref" = "S" ] && lat="-$lat"
-        [ "$lon_ref" = "W" ] && lon="-$lon"
-        lon="${lon#-}"
-        echo "https://www.google.com/maps?q=${lat},${lon}"
-    else
-        echo "No GPS coordinates found."
-    fi
+   local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
+   local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
+   local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
+   local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
+   if [ -n "$lat" ] && [ -n "$lon" ]; then
+       [ "$lat_ref" = "S" ] && lat="-$lat"
+       [ "$lon_ref" = "W" ] && lon="-$lon"
+       lon="${lon#-}"
+       echo "https://www.google.com/maps?q=${lat},${lon}"
+   else
+       echo "No GPS coordinates found."
+   fi
 }
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <image_file>"
-    exit 1
+   echo "Usage: $0 <image_file>"
+   exit 1
 fi
 IMAGE_FILE="$1"
 if [ ! -f "$IMAGE_FILE" ]; then
-    echo "Error: File not found."
-    exit 1
+   echo "Error: File not found."
+   exit 1
 fi
 extract_coords "$IMAGE_FILE"`
 
@@ -79,13 +79,13 @@ extract_coords "$IMAGE_FILE"`
 		})
 
 	_, err := container.WithExec([]string{"/bin/sh", "-c", `
-	exiftool -ver &&
-	identify -version | head -n 1 &&
-	jhead -V &&
-	exiv2 -V &&
-	gdalinfo --version &&
-	cat /etc/os-release
-	`}).Stdout(ctx)
+   exiftool -ver &&
+   identify -version | head -n 1 &&
+   jhead -V &&
+   exiv2 -V &&
+   gdalinfo --version &&
+   cat /etc/os-release
+   `}).Stdout(ctx)
 
 	if err != nil {
 		return nil, err
@@ -122,27 +122,27 @@ func (m *Amokcrayon) ExtractGPSMetadata(ctx context.Context) (string, error) {
 func (m *Amokcrayon) ExtractLocalGPSMetadata(ctx context.Context) (string, error) {
 	scriptContent := `#!/bin/bash
 extract_coords() {
-    local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
-    local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
-    local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
-    local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
-    if [ -n "$lat" ] && [ -n "$lon" ]; then
-        [ "$lat_ref" = "S" ] && lat="-$lat"
-        [ "$lon_ref" = "W" ] && lon="-$lon"
-        lon="${lon#-}"
-        echo "https://www.google.com/maps?q=${lat},${lon}"
-    else
-        echo "No GPS coordinates found."
-    fi
+   local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
+   local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
+   local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
+   local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
+   if [ -n "$lat" ] && [ -n "$lon" ]; then
+       [ "$lat_ref" = "S" ] && lat="-$lat"
+       [ "$lon_ref" = "W" ] && lon="-$lon"
+       lon="${lon#-}"
+       echo "https://www.google.com/maps?q=${lat},${lon}"
+   else
+       echo "No GPS coordinates found."
+   fi
 }
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <image_file>"
-    exit 1
+   echo "Usage: $0 <image_file>"
+   exit 1
 fi
 IMAGE_FILE="$1"
 if [ ! -f "$IMAGE_FILE" ]; then
-    echo "Error: File not found."
-    exit 1
+   echo "Error: File not found."
+   exit 1
 fi
 extract_coords "$IMAGE_FILE"`
 
@@ -154,25 +154,19 @@ extract_coords "$IMAGE_FILE"`
 		"gdal-bin",
 	}
 
-	localImageFile := dag.Directory().File("20240712_103259.jpg")
-	name, err := localImageFile.Name(ctx)
-	if err != nil {
-		return "", fmt.Errorf("failed to get local image file name: %w", err)
-	}
-
 	container := dag.Container().
 		From("ubuntu:22.04").
 		WithExec([]string{"apt-get", "update"}).
 		WithExec(append([]string{"apt-get", "install", "-y"}, packages...)).
-		WithFile(fmt.Sprintf("/src/%s", name), localImageFile).
+		WithMountedDirectory("/src", dag.Directory()).
 		WithNewFile("/src/gps_metadata_extractor.sh", scriptContent, dagger.ContainerWithNewFileOpts{
 			Permissions: 0755,
 		})
 
-	output, err := container.WithExec([]string{"sh", "/src/gps_metadata_extractor.sh", fmt.Sprintf("/src/%s", name)}).Stdout(ctx)
+	output, err := container.WithExec([]string{"sh", "/src/gps_metadata_extractor.sh", "/src/20240712_103259.jpg"}).Stdout(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to extract GPS metadata: %w", err)
 	}
 
-	return fmt.Sprintf("Local Image: %s\nResult: %s\n", name, output), nil
+	return fmt.Sprintf("Local Image: 20240712_103259.jpg\nResult: %s\n", output), nil
 }
