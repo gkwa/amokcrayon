@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+
 	"dagger/amokcrayon/internal/dagger"
 )
 
@@ -48,10 +49,11 @@ func (m *Amokcrayon) InstallGPSTools(ctx context.Context) (string, error) {
 		WithExec([]string{"apt-get", "install", "-y", "libimage-exiftool-perl", "imagemagick", "jhead", "exiv2", "gdal-bin"})
 
 	return container.WithExec([]string{"/bin/sh", "-c", `
-		exiftool -ver &&
-		identify -version | head -n 1 &&
-		jhead -V &&
-		exiv2 -V &&
-		gdalinfo --version
-	`}).Stdout(ctx)
+   	exiftool -ver &&
+   	identify -version | head -n 1 &&
+   	jhead -V &&
+   	exiv2 -V &&
+   	gdalinfo --version &&
+   	cat /etc/os-release
+   `}).Stdout(ctx)
 }
