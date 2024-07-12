@@ -25,7 +25,7 @@ func main() {
 		"libimage-exiftool-perl",
 	}
 
-	ubuntu := client.Container().From("ubuntu:latest")
+	ubuntu := client.Container().From("ubuntu:22.04")
 
 	container := ubuntu.WithExec([]string{"apt", "update"})
 
