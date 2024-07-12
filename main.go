@@ -29,19 +29,22 @@ func main() {
 	// Create a cache volume
 	cache := client.CacheVolume("apt-cache")
 
+	// Install packages with caching
 	container := ubuntu.
 		WithMountedCache("/var/cache/apt", cache).
-		WithExec([]string{"apt", "update"}).
-		WithExec(append([]string{"apt", "install", "--assume-yes"}, packages...))
+		WithExec([]string{"apt-get", "update"}).
+		WithExec(append([]string{"apt-get", "install", "--assume-yes"}, packages...))
 
-	output, err := container.WithExec([]string{"/bin/sh", "-c", `
+	// Create a separate step for version checking
+	versionContainer := container.WithExec([]string{"/bin/sh", "-c", `
 		exiftool -ver &&
 		identify -version | head -n 1 &&
 		jhead -V &&
 		exiv2 -V &&
 		gdalinfo --version
-	`}).Stdout(ctx)
+	`})
 
+	output, err := versionContainer.Stdout(ctx)
 	if err != nil {
 		panic(err)
 	}
