@@ -10,7 +10,6 @@ import (
 
 func main() {
 	ctx := context.Background()
-
 	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
 	if err != nil {
 		panic(err)
@@ -27,9 +26,13 @@ func main() {
 
 	ubuntu := client.Container().From("ubuntu:22.04")
 
-	container := ubuntu.WithExec([]string{"apt", "update"})
+	// Create a cache volume
+	cache := client.CacheVolume("apt-cache")
 
-	container = container.WithExec(append([]string{"apt", "install", "--assume-yes"}, packages...))
+	container := ubuntu.
+		WithMountedCache("/var/cache/apt", cache).
+		WithExec([]string{"apt", "update"}).
+		WithExec(append([]string{"apt", "install", "--assume-yes"}, packages...))
 
 	output, err := container.WithExec([]string{"/bin/sh", "-c", `
 		exiftool -ver &&
@@ -38,6 +41,7 @@ func main() {
 		exiv2 -V &&
 		gdalinfo --version
 	`}).Stdout(ctx)
+
 	if err != nil {
 		panic(err)
 	}
