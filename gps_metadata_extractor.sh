@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Function to display help message
 show_help() {
     echo "Usage: $0 <image_file>"
