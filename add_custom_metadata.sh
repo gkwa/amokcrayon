@@ -30,3 +30,4 @@ exiftool -config custom_config.config -overwrite_original \
 
 echo "Custom metadata added. Verifying:"
 exiftool -config custom_config.config -G1 -s -XMP-eden:all "$IMAGE_FILE"
+
