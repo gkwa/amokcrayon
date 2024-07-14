@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG_FILE="custom_config.config"
+CONFIG_FILE="custom_config.config.pl"
 
 # Function to display help message
 show_help() {
