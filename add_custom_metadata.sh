@@ -1,6 +1,18 @@
 #!/bin/bash
 
-IMAGE_FILE="20240708_193150.jpg"
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <image_file>"
+    exit 1
+fi
+
+IMAGE_FILE="$1"
+
+# Check if the file exists
+if [ ! -f "$IMAGE_FILE" ]; then
+    echo "Error: File '$IMAGE_FILE' not found."
+    exit 1
+fi
 
 # Ensure the file is writable
 chmod u+w "$IMAGE_FILE"
