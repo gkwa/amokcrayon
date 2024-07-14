@@ -14,7 +14,6 @@ if [ ! -f "$IMAGE_FILE" ]; then
     exit 1
 fi
 
-exiftool -overwrite_original "-$TAG=$VALUE" "$IMAGE_FILE"
-
+exiftool -overwrite_original "-${TAG}=${VALUE}" "$IMAGE_FILE"
 echo "Metadata added. Verifying:"
-exiftool -$TAG "$IMAGE_FILE"
+exiftool "-${TAG}" "$IMAGE_FILE"

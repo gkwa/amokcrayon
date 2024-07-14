@@ -6,17 +6,16 @@ CONFIG_FILE="custom_config.config"
 show_help() {
     cat <<EOF
 Usage: $0 <image_file>
-
 This script adds custom EXIF metadata to an image file.
 
 Arguments:
-  <image_file>    Path to the image file to process
+ <image_file>    Path to the image file to process
 
 Note: This script requires a config file named '$CONFIG_FILE' in the same
-      directory.
+     directory.
 
 Example:
-  $0 path/to/your/image.jpg
+ $0 path/to/your/image.jpg
 EOF
 }
 
@@ -53,7 +52,7 @@ fi
 chmod u+w "$IMAGE_FILE"
 
 # Add custom metadata using the config file
-exiftool -config "$CONFIG_FILE" -overwrite_original \
+if exiftool -config "$CONFIG_FILE" -overwrite_original \
     "-XMP-eden:Product=Sushi Nori" \
     "-XMP-eden:Brand=Eden" \
     "-XMP-eden:Weight=0.6 oz" \
@@ -61,9 +60,7 @@ exiftool -config "$CONFIG_FILE" -overwrite_original \
     "-XMP-eden:Price=8.69" \
     "-XMP-eden:IsGlutenFree=Yes" \
     "-XMP-eden:IsVegan=Yes" \
-    "$IMAGE_FILE"
-
-if [ $? -eq 0 ]; then
+    "$IMAGE_FILE"; then
     echo "Custom metadata added successfully. Verifying:"
     exiftool -config "$CONFIG_FILE" -G1 -s -XMP-eden:all "$IMAGE_FILE"
 else

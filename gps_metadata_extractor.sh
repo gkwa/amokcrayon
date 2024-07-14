@@ -16,10 +16,16 @@ show_help() {
 
 # Function to extract coordinates
 extract_coords() {
-    local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
-    local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
-    local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
-    local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
+    local lat
+    local lon
+    local lat_ref
+    local lon_ref
+
+    lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
+    lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
+    lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
+    lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
+
     if [ -n "$lat" ] && [ -n "$lon" ]; then
         [ "$lat_ref" = "S" ] && lat="-$lat"
         [ "$lon_ref" = "W" ] && lon="-$lon"
