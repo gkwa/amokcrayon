@@ -16,23 +16,23 @@ show_help() {
 
 # Function to extract coordinates
 extract_coords() {
-   local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
-   local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
-   local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
-   local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
-   if [ -n "$lat" ] && [ -n "$lon" ]; then
-       [ "$lat_ref" = "S" ] && lat="-$lat"
-       [ "$lon_ref" = "W" ] && lon="-$lon"
-       lon="${lon#-}"
-       echo "GPS Coordinates found!"
-       echo "Google Maps Link: https://www.google.com/maps?q=${lat},${lon}"
-   else
-       echo "No GPS coordinates found in the image."
-   fi
+    local lat=$(exiftool -n -p '$GPSLatitude' "$1" 2>/dev/null)
+    local lon=$(exiftool -n -p '$GPSLongitude' "$1" 2>/dev/null)
+    local lat_ref=$(exiftool -n -p '$GPSLatitudeRef' "$1" 2>/dev/null)
+    local lon_ref=$(exiftool -n -p '$GPSLongitudeRef' "$1" 2>/dev/null)
+    if [ -n "$lat" ] && [ -n "$lon" ]; then
+        [ "$lat_ref" = "S" ] && lat="-$lat"
+        [ "$lon_ref" = "W" ] && lon="-$lon"
+        lon="${lon#-}"
+        echo "GPS Coordinates found!"
+        echo "Google Maps Link: https://www.google.com/maps?q=${lat},${lon}"
+    else
+        echo "No GPS coordinates found in the image."
+    fi
 }
 
 # Check if help is requested
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+if [[ $1 == "--help" || $1 == "-h" ]]; then
     show_help
     exit 0
 fi

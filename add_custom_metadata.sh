@@ -4,7 +4,7 @@ CONFIG_FILE="custom_config.config"
 
 # Function to display help message
 show_help() {
-    cat << EOF
+    cat <<EOF
 Usage: $0 <image_file>
 
 This script adds custom EXIF metadata to an image file.
@@ -21,7 +21,7 @@ EOF
 }
 
 # Check if help is requested
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+if [[ $1 == "--help" || $1 == "-h" ]]; then
     show_help
     exit 0
 fi

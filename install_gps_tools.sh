@@ -8,4 +8,3 @@ identify -version | head -n 1
 jhead -V
 exiv2 -V
 gdalinfo --version
-
